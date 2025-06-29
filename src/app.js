@@ -1,21 +1,17 @@
-import { PrismaClient } from '@prisma/client';
+const express = require('express');
 
-const prisma = new PrismaClient();
+const authRoutes = require('./routes/auth.routes');
 
-async function main() {
-  const user = await prisma.users.create({
-    data: {
-      email: 'test@example.com',
-      passwordHash: 'securepassword',
-    },
-  });
-  console.log('Created user:', user);
-}
+const logger = require('./middlewares/logger');
+const errorHandler = require('./middlewares/errorHandler');
 
-main()
-  .catch(e => {
-    console.error(e);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+const app = express();
+
+app.use(express.json());
+app.use(logger);
+
+app.use('/api/auth', authRoutes);
+
+app.use(errorHandler);
+
+module.exports = app;
